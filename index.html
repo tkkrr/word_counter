@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>Word Counter</title>
+</head>
+<body>
+    <div id="app" style="display:flex;">
+        <div>
+            <textarea @input="onChange"></textarea>
+            <p>文字数：{{counter}}</p>
+            <p>文字数（空白除く）：{{non_space}}</p>
+            <p>ソート：<input type="checkbox" @change="isSort"/></p>
+        </div>
+        <div style="display: flex;">
+            <table>
+                <tr v-for=" letter in letters ">
+                    <td>{{letter[0]}}:</td><td>{{ letter[1] }}</td>
+                </tr>
+            </table>
+            <table border="1" v-if="words">
+                <tr v-for=" word in words ">
+                    <td>{{ word[0] }}：</td><td>{{ word[1] }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                letters: [
+                    ["a", 0], ["b", 0], ["c", 0], ["d", 0], ["e", 0],
+                    ["f", 0], ["g", 0], ["h", 0], ["i", 0], ["j", 0],
+                    ["k", 0], ["l", 0], ["m", 0], ["n", 0], ["o", 0],
+                    ["p", 0], ["q", 0], ["r", 0], ["s", 0], ["t", 0],
+                    ["u", 0], ["v", 0], ["w", 0], ["x", 0], ["y", 0], ["z", 0]
+                ],
+                words: [],
+                counter: 0,
+                non_space: 0
+            },
+            methods: {
+                onChange: function(e) {
+                    let letters = {
+                        a: 0, b: 0, c: 0, d: 0, e: 0,
+                        f: 0, g: 0, h: 0, i: 0, j: 0,
+                        k: 0, l: 0, m: 0, n: 0, o: 0,
+                        p: 0, q: 0, r: 0, s: 0, t: 0,
+                        u: 0, v: 0, w: 0, x: 0, y: 0, z:0
+                    }
+
+                    let textarea = e.target.value
+                    app.counter = textarea.length
+                    app.non_space = textarea.replace(/ /g, "").length
+
+                    for( let i=0; i < app.counter; i++ ){
+                        if(textarea[i] == /[^a-zA-Z]/){ continue }
+                        letters[ textarea[i].toLowerCase() ]++
+                    }
+
+                    for( let i=0; i < app.letters.length; i++){
+                        app.letters[i][1] = letters[ app.letters[i][0] ]
+                    }
+
+                    if( app.counter != 0 ){
+                        let words = {}
+                        let words_arr = []
+                        
+                        textarea.split(/[ \n]/).filter( item => {
+                            if( item == "" )return false
+                            else return true
+                        })
+                        .forEach( item => {
+                            if( !words[item] ){
+                                words[item] = 1
+                            }else{
+                                words[item]++
+                            }
+                        })
+
+                        Object.keys(words).forEach( item => {
+                            words_arr.push( [ item, words[item] ] )
+                        })
+                        words_arr.sort( (a,b) => {return b[1] - a[1]} )
+                        app.words = words_arr.slice(0,25)
+                    }else{
+                        app.words = []
+                    }
+                    
+                },
+                isSort: function(e) {
+                    if(e.target.checked){
+                        app.letters.sort( (a, b) => {
+                            return b[1] - a[1];
+                        })
+                    } else {
+                        app.letters.sort()
+                    }
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
